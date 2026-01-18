@@ -1,0 +1,35 @@
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Machine {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String   @unique
+  model     String?
+  location  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  reports   Report[]
+}
+
+model Report {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  machineId  String?  @db.ObjectId
+  machine    Machine? @relation(fields: [machineId], references: [id])
+
+  reportDate DateTime @default(now())
+  type       String   // es: "PERFORMANCE", "ERROR", "USER_FEEDBACK"
+  status     String   // es: "OPEN", "CLOSED", "IN_PROGRESS"
+  userId     String?
+
+  payload    Json?    // dati statistici, misure, feedback strutturato
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
